@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>숭례문 열 확산 시뮬레이션</title>
+<title>열확산 프로그램</title>
 
 <style>
 body {
@@ -16,32 +16,31 @@ body {
 
 canvas {
     border: 2px solid #aaa;
-    background: #000;
 }
 </style>
 </head>
 
 <body>
 
-<canvas id="canvas" width="900" height="550"></canvas>
+<canvas id="canvas" width="800" height="500"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// 🔥 숭례문 스크린샷
-const image = new Image();
-image.src = "images/sungnyemun.png";
+// 배경 이미지 (같은 폴더!)
+const bg = new Image();
+bg.src = "sungnyemun.png";
 
 // 열 입자
 let heat = [];
 
 function createHeat() {
     heat.push({
-        x: 420 + Math.random() * 40,
-        y: 260 + Math.random() * 30,
-        r: 8,
-        a: 0.9
+        x: 380 + Math.random() * 40,
+        y: 220 + Math.random() * 30,
+        r: 6,
+        a: 1
     });
 }
 
@@ -50,10 +49,9 @@ function drawHeat(h) {
         h.x, h.y, 0,
         h.x, h.y, h.r
     );
-
-    g.addColorStop(0, `rgba(255,255,120,${h.a})`);
-    g.addColorStop(0.5, `rgba(255,120,0,${h.a})`);
-    g.addColorStop(1, `rgba(255,0,0,0)`);
+    g.addColorStop(0, `rgba(255, 120, 0, ${h.a})`);
+    g.addColorStop(0.6, `rgba(255, 60, 0, ${h.a})`);
+    g.addColorStop(1, `rgba(255, 0, 0, 0)`);
 
     ctx.beginPath();
     ctx.fillStyle = g;
@@ -64,15 +62,20 @@ function drawHeat(h) {
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 📸 배경 이미지
-    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+    // 숭례문 스크린샷
+    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
+
+    // 제목
+    ctx.fillStyle = "white";
+    ctx.font = "20px Arial";
+    ctx.fillText("열확산 프로그램", 20, 30);
 
     // 열 생성
     if (Math.random() < 0.35) createHeat();
 
     heat.forEach(h => {
-        h.r += 0.6;
-        h.a -= 0.005;
+        h.r += 0.7;
+        h.a -= 0.006;
         h.x += Math.random() * 1.2;
         h.y += Math.random() * 1.0;
         drawHeat(h);
@@ -83,15 +86,10 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-image.onload = () => {
-    animate();
-};
-
-// ❗ 이미지 로드 실패 시 확인용
-image.onerror = () => {
-    alert("이미지를 불러오지 못했습니다. 경로 또는 파일명을 확인하세요.");
-};
+bg.onload = animate;
 </script>
 
 </body>
 </html>
+
+
