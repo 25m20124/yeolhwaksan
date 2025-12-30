@@ -8,13 +8,20 @@
 body {
     margin: 0;
     background: #111;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    margin: 20px 0;
+    font-size: 28px;
 }
 
 canvas {
+    display: block;
+    margin: 0 auto;
+    background: #000;
     border: 2px solid #aaa;
 }
 </style>
@@ -22,23 +29,21 @@ canvas {
 
 <body>
 
+<h1>열확산 프로그램</h1>
+
 <canvas id="canvas" width="800" height="500"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// 배경 이미지 (같은 폴더!)
-const bg = new Image();
-bg.src = "sungnyemun.png";
-
-// 열 입자
+// 열 입자 배열
 let heat = [];
 
 function createHeat() {
     heat.push({
-        x: 380 + Math.random() * 40,
-        y: 220 + Math.random() * 30,
+        x: canvas.width / 2 + Math.random() * 20 - 10,
+        y: canvas.height / 2 + Math.random() * 20 - 10,
         r: 6,
         a: 1
     });
@@ -49,9 +54,10 @@ function drawHeat(h) {
         h.x, h.y, 0,
         h.x, h.y, h.r
     );
-    g.addColorStop(0, `rgba(255, 120, 0, ${h.a})`);
-    g.addColorStop(0.6, `rgba(255, 60, 0, ${h.a})`);
-    g.addColorStop(1, `rgba(255, 0, 0, 0)`);
+
+    g.addColorStop(0, `rgba(255,200,50,${h.a})`);
+    g.addColorStop(0.5, `rgba(255,80,0,${h.a})`);
+    g.addColorStop(1, `rgba(255,0,0,0)`);
 
     ctx.beginPath();
     ctx.fillStyle = g;
@@ -62,22 +68,16 @@ function drawHeat(h) {
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 숭례문 스크린샷
-    ctx.drawImage(bg, 0, 0, canvas.width, canvas.height);
-
-    // 제목
-    ctx.fillStyle = "white";
-    ctx.font = "20px Arial";
-    ctx.fillText("열확산 프로그램", 20, 30);
-
     // 열 생성
-    if (Math.random() < 0.35) createHeat();
+    if (Math.random() < 0.4) {
+        createHeat();
+    }
 
     heat.forEach(h => {
-        h.r += 0.7;
-        h.a -= 0.006;
-        h.x += Math.random() * 1.2;
-        h.y += Math.random() * 1.0;
+        h.r += 0.8;          // 확산
+        h.a -= 0.006;        // 소멸
+        h.x += Math.random() * 1.5 - 0.75;
+        h.y += Math.random() * 1.5 - 0.75;
         drawHeat(h);
     });
 
@@ -86,10 +86,8 @@ function animate() {
     requestAnimationFrame(animate);
 }
 
-bg.onload = animate;
+animate();
 </script>
 
 </body>
 </html>
-
-
