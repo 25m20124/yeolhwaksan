@@ -2,98 +2,95 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>숭례문 화재 확산 표현</title>
-<style>
-    body {
-        margin: 0;
-        background: #111;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+<title>숭례문 열 확산 시뮬레이션</title>
 
-    canvas {
-        background: #333;
-        border: 2px solid #aaa;
-    }
+<style>
+body {
+    margin: 0;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+canvas {
+    border: 2px solid #aaa;
+    background: #000;
+}
 </style>
 </head>
+
 <body>
 
-<canvas id="canvas" width="800" height="500"></canvas>
+<canvas id="canvas" width="900" height="550"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// 불 입자 배열
-let fires = [];
+// 🔥 숭례문 스크린샷
+const image = new Image();
+image.src = "images/sungnyemun.png";
 
-// 불 생성 (왼쪽 위에서 시작)
-function createFire() {
-    fires.push({
-        x: 150 + Math.random() * 20,
-        y: 80 + Math.random() * 20,
-        radius: 5,
-        alpha: 1
+// 열 입자
+let heat = [];
+
+function createHeat() {
+    heat.push({
+        x: 420 + Math.random() * 40,
+        y: 260 + Math.random() * 30,
+        r: 8,
+        a: 0.9
     });
 }
 
-// 숭례문 간단 표현
-function drawSungnyemun() {
-    ctx.fillStyle = "#666";
-    ctx.fillRect(200, 200, 400, 200); // 건물 몸체
-
-    ctx.fillStyle = "#444";
-    ctx.fillRect(180, 160, 440, 60); // 지붕
-}
-
-// 불 그리기
-function drawFire(fire) {
-    const gradient = ctx.createRadialGradient(
-        fire.x, fire.y, 0,
-        fire.x, fire.y, fire.radius
+function drawHeat(h) {
+    const g = ctx.createRadialGradient(
+        h.x, h.y, 0,
+        h.x, h.y, h.r
     );
 
-    gradient.addColorStop(0, `rgba(255, 200, 0, ${fire.alpha})`);
-    gradient.addColorStop(0.5, `rgba(255, 80, 0, ${fire.alpha})`);
-    gradient.addColorStop(1, `rgba(255, 0, 0, 0)`);
+    g.addColorStop(0, `rgba(255,255,120,${h.a})`);
+    g.addColorStop(0.5, `rgba(255,120,0,${h.a})`);
+    g.addColorStop(1, `rgba(255,0,0,0)`);
 
     ctx.beginPath();
-    ctx.fillStyle = gradient;
-    ctx.arc(fire.x, fire.y, fire.radius, 0, Math.PI * 2);
+    ctx.fillStyle = g;
+    ctx.arc(h.x, h.y, h.r, 0, Math.PI * 2);
     ctx.fill();
 }
 
-// 애니메이션
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    drawSungnyemun();
+    // 📸 배경 이미지
+    ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
 
-    // 불 생성 지속
-    if (Math.random() < 0.4) {
-        createFire();
-    }
+    // 열 생성
+    if (Math.random() < 0.35) createHeat();
 
-    // 불 확산
-    fires.forEach(fire => {
-        fire.radius += 0.8;     // 확장
-        fire.alpha -= 0.005;   // 점점 사라짐
-        fire.x += Math.random() * 1.5; // 퍼지는 효과
-        fire.y += Math.random() * 1.2;
-
-        drawFire(fire);
+    heat.forEach(h => {
+        h.r += 0.6;
+        h.a -= 0.005;
+        h.x += Math.random() * 1.2;
+        h.y += Math.random() * 1.0;
+        drawHeat(h);
     });
 
-    // 사라진 불 제거
-    fires = fires.filter(f => f.alpha > 0);
+    heat = heat.filter(h => h.a > 0);
 
     requestAnimationFrame(animate);
 }
 
-animate();
+image.onload = () => {
+    animate();
+};
+
+// ❗ 이미지 로드 실패 시 확인용
+image.onerror = () => {
+    alert("이미지를 불러오지 못했습니다. 경로 또는 파일명을 확인하세요.");
+};
 </script>
 
 </body>
