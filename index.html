@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>숭례문 화재 확산 표현</title>
+<style>
+    body {
+        margin: 0;
+        background: #111;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+    }
+
+    canvas {
+        background: #333;
+        border: 2px solid #aaa;
+    }
+</style>
+</head>
+<body>
+
+<canvas id="canvas" width="800" height="500"></canvas>
+
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+
+// 불 입자 배열
+let fires = [];
+
+// 불 생성 (왼쪽 위에서 시작)
+function createFire() {
+    fires.push({
+        x: 150 + Math.random() * 20,
+        y: 80 + Math.random() * 20,
+        radius: 5,
+        alpha: 1
+    });
+}
+
+// 숭례문 간단 표현
+function drawSungnyemun() {
+    ctx.fillStyle = "#666";
+    ctx.fillRect(200, 200, 400, 200); // 건물 몸체
+
+    ctx.fillStyle = "#444";
+    ctx.fillRect(180, 160, 440, 60); // 지붕
+}
+
+// 불 그리기
+function drawFire(fire) {
+    const gradient = ctx.createRadialGradient(
+        fire.x, fire.y, 0,
+        fire.x, fire.y, fire.radius
+    );
+
+    gradient.addColorStop(0, `rgba(255, 200, 0, ${fire.alpha})`);
+    gradient.addColorStop(0.5, `rgba(255, 80, 0, ${fire.alpha})`);
+    gradient.addColorStop(1, `rgba(255, 0, 0, 0)`);
+
+    ctx.beginPath();
+    ctx.fillStyle = gradient;
+    ctx.arc(fire.x, fire.y, fire.radius, 0, Math.PI * 2);
+    ctx.fill();
+}
+
+// 애니메이션
+function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawSungnyemun();
+
+    // 불 생성 지속
+    if (Math.random() < 0.4) {
+        createFire();
+    }
+
+    // 불 확산
+    fires.forEach(fire => {
+        fire.radius += 0.8;     // 확장
+        fire.alpha -= 0.005;   // 점점 사라짐
+        fire.x += Math.random() * 1.5; // 퍼지는 효과
+        fire.y += Math.random() * 1.2;
+
+        drawFire(fire);
+    });
+
+    // 사라진 불 제거
+    fires = fires.filter(f => f.alpha > 0);
+
+    requestAnimationFrame(animate);
+}
+
+animate();
+</script>
+
+</body>
+</html>
