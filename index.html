@@ -8,21 +8,18 @@
 body {
     margin: 0;
     background: #111;
-    color: white;
+    color: #fff;
     font-family: Arial, sans-serif;
     text-align: center;
 }
 
 h1 {
-    margin: 20px 0;
-    font-size: 28px;
+    margin: 15px 0;
 }
 
 canvas {
-    display: block;
-    margin: 0 auto;
-    background: #000;
-    border: 2px solid #aaa;
+    background: #222;
+    border: 2px solid #888;
 }
 </style>
 </head>
@@ -31,33 +28,56 @@ canvas {
 
 <h1>열확산 프로그램</h1>
 
-<canvas id="canvas" width="800" height="500"></canvas>
+<canvas id="canvas" width="900" height="500"></canvas>
 
 <script>
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-// 열 입자 배열
-let heat = [];
+// 열 입자
+let heats = [];
 
+// 숭례문 단순 그림
+function drawSungnyemun() {
+    // 몸체
+    ctx.fillStyle = "#555";
+    ctx.fillRect(300, 220, 300, 180);
+
+    // 지붕
+    ctx.fillStyle = "#444";
+    ctx.beginPath();
+    ctx.moveTo(280, 220);
+    ctx.lineTo(620, 220);
+    ctx.lineTo(600, 180);
+    ctx.lineTo(300, 180);
+    ctx.closePath();
+    ctx.fill();
+
+    // 오른쪽 담벼락
+    ctx.fillStyle = "#666";
+    ctx.fillRect(600, 260, 80, 140);
+}
+
+// 열 생성 (오른쪽 담벼락 근처)
 function createHeat() {
-    heat.push({
-        x: canvas.width / 2 + Math.random() * 20 - 10,
-        y: canvas.height / 2 + Math.random() * 20 - 10,
+    heats.push({
+        x: 670 + Math.random() * 10,
+        y: 300 + Math.random() * 60,
         r: 6,
         a: 1
     });
 }
 
+// 열 그리기
 function drawHeat(h) {
     const g = ctx.createRadialGradient(
         h.x, h.y, 0,
         h.x, h.y, h.r
     );
 
-    g.addColorStop(0, `rgba(255,200,50,${h.a})`);
-    g.addColorStop(0.5, `rgba(255,80,0,${h.a})`);
-    g.addColorStop(1, `rgba(255,0,0,0)`);
+    g.addColorStop(0, `rgba(255,200,0,${h.a})`);
+    g.addColorStop(0.6, `rgba(255,80,0,${h.a})`);
+    g.addColorStop(1, "rgba(255,0,0,0)");
 
     ctx.beginPath();
     ctx.fillStyle = g;
@@ -65,23 +85,25 @@ function drawHeat(h) {
     ctx.fill();
 }
 
+// 애니메이션
 function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 열 생성
-    if (Math.random() < 0.4) {
-        createHeat();
-    }
+    drawSungnyemun();
 
-    heat.forEach(h => {
-        h.r += 0.8;          // 확산
-        h.a -= 0.006;        // 소멸
-        h.x += Math.random() * 1.5 - 0.75;
-        h.y += Math.random() * 1.5 - 0.75;
+    // 열 지속 발생
+    if (Math.random() < 0.4) createHeat();
+
+    heats.forEach(h => {
+        h.r += 0.8;      // 확산
+        h.a -= 0.006;   // 약화
+        h.x -= Math.random() * 1.5; // 왼쪽으로 퍼짐
+        h.y += (Math.random() - 0.5) * 1.2;
+
         drawHeat(h);
     });
 
-    heat = heat.filter(h => h.a > 0);
+    heats = heats.filter(h => h.a > 0);
 
     requestAnimationFrame(animate);
 }
